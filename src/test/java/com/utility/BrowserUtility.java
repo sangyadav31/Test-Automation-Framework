@@ -3,6 +3,7 @@ package com.utility;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
@@ -18,12 +19,16 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.constants.Browser;
 
 public abstract class BrowserUtility {
-	Logger logger = LoggerUtility.getLogger(this.getClass());
+
 	private static ThreadLocal<WebDriver> driver = new ThreadLocal<WebDriver>();
+	private Logger logger = LoggerUtility.getLogger(this.getClass());
+	private WebDriverWait wait;
 
 	public WebDriver getDriver() {
 		return driver.get();
@@ -32,6 +37,7 @@ public abstract class BrowserUtility {
 	public BrowserUtility(WebDriver driver) {
 		super();
 		this.driver.set(driver); //initialize the driver instance variable
+		wait = new WebDriverWait(driver, Duration.ofSeconds(30L));
 	}
 	
 	public BrowserUtility(Browser browserName) {
@@ -39,12 +45,18 @@ public abstract class BrowserUtility {
 		
 		if(browserName==Browser.CHROME) {
 			driver.set(new ChromeDriver());
+			wait = new WebDriverWait(getDriver(), Duration.ofSeconds(30L));
+
 		} 
 		else if(browserName==Browser.FIREFOX) {
 			driver.set(new FirefoxDriver());
+			wait = new WebDriverWait(getDriver(), Duration.ofSeconds(30L));
+
 		} 
 		else if(browserName==Browser.EDGE) {
 			driver.set(new EdgeDriver());
+			wait = new WebDriverWait(getDriver(), Duration.ofSeconds(30L));
+
 		}else {
 			logger.error("Unsupported browser!");
 		}
@@ -63,9 +75,13 @@ public abstract class BrowserUtility {
 				options.addArguments("--window-size=1920,1080");
 				options.addArguments("--remote-allow-origins=*");
 				driver.set(new ChromeDriver(options));
+				wait = new WebDriverWait(getDriver(), Duration.ofSeconds(30L));
+
 			}
 			else {
 				driver.set(new ChromeDriver());
+				wait = new WebDriverWait(getDriver(), Duration.ofSeconds(30L));
+
 			}
 		} 
 		else if(browserName==Browser.FIREFOX) {
@@ -76,9 +92,13 @@ public abstract class BrowserUtility {
 				options.addArguments("--disable-gpu");
 				options.addArguments("--window-size=1920,1080");
 				driver.set(new FirefoxDriver(options));
+				wait = new WebDriverWait(getDriver(), Duration.ofSeconds(30L));
+
 			}
 			else {
 				driver.set(new FirefoxDriver());
+				wait = new WebDriverWait(getDriver(), Duration.ofSeconds(30L));
+
 			}
 		} 
 		else if(browserName==Browser.EDGE) {
@@ -88,9 +108,13 @@ public abstract class BrowserUtility {
 				options.addArguments("--disable-gpu");
 				options.addArguments("--window-size=1920,1080");
 				driver.set(new EdgeDriver(options));
+				wait = new WebDriverWait(getDriver(), Duration.ofSeconds(30L));
+
 			}
 			else {
 				driver.set(new EdgeDriver());
+				wait = new WebDriverWait(getDriver(), Duration.ofSeconds(30L));
+
 			}
 		}
 		else {
@@ -109,22 +133,22 @@ public abstract class BrowserUtility {
 	}
 	
 	public void clickOn(By locator) {
-		WebElement element = driver.get().findElement(locator);
+		WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
 		element.click();
 	}
 	
 	public void enterText(By locator, String textToEnter) {
-		WebElement element = driver.get().findElement(locator);
+		WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 		element.sendKeys(textToEnter);
 	}
 	
 	public String getVisibleText(By locator) {
-		WebElement element = driver.get().findElement(locator);
+		WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 		return element.getText();
 	}
 	
 	public void clearText(By locator) {
-		WebElement element = driver.get().findElement(locator);
+		WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 		element.clear();
 	}
 	
